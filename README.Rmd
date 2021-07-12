@@ -1,0 +1,226 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# "Survival in relation to time to start of curative treatment of colon and rectal cancer is confounded by increased survival after laparoscopic surgery: A national register-based observational non-inferiority study"                    
+
+Daniel Rydbeck, David Bock, Eva Haglind, Eva Angenete, Aron Onerup
+
+#  Description                        
+Registry datasets was located on Colorectal Cancer data Base Sweden (CRCBaSe) external server at Karolinska Institutet (KI), Sweden. Data management and statistical analysis was performed via VPN Remote Access. SAS software was used.  
+
+*Individual patient level data can not be publicly available or shared due to restrictions in the ethics approval agreement (Ethical permission was obtained from the Regional ethical committee in Stockholm February 26th 2014, Dnr 2014/71-31/1 for creation of the data base)*. The current study was registered at ClinicalTrials.gov with trial registration number NCT04571047, date of first registry September 30 2020.
+
+# SAS code 
+The following SAS program code programs for data management and statistical analysis are available:           
+**1. A1_analys_set_derivation**           
+Derive analysis set based on inclusion and exclusion criteria.            
+**2. A2_Read_data_Fix_derivation**           
+Create analysis data set and derive relevant variables (covariates, exposure and endpoints).        
+**3. A3_Create_Multiple_imputations**           
+Create data set with multiple imputations (50) on the missing values of the covariates used for confounder adjustment.                
+**4. A4_demography**           
+Demography and patient characteristics.                     
+**5. B1_Primary_Outcome_Surv_curves**           
+Adjusted survival curves for primary endpoint: all-cause mortality            
+**6. B2_Regressions_models**                           
+Regression analyses for primary and secondary endpoints           
+**7. B3_Dose_response_Survival**                           
+Estimate dose-response relationship between time from diagnosis to start of treatment and 5 year survival                
+**8. C1_PostHoc_1_Surv_curves**                          
+Post hoc analysis 1: Heterogeneity in the relationship time from diagnosis to start of treatment and all-cause mortality with rehard to surgical technique (Laparoscopy/Open). Adjusted survival curves     
+**10. C2_PostHoc_1_Cox_regression**                          
+Post hoc analysis 1: Heterogeneity in the relationship time from diagnosis to start of treatment and all-cause mortality with regard to surgical technique (Laparoscopy/Open). Cox regression.             
+**11. D_PostHoc_2_Surv_curves_Cox_regression**              
+Post hoc analysis 2: The relationship between surgical technique (Laparoscopy/Open) and all-cause mortality. Adjusted survival curves and Cox regression.                                
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.show='hide'}
+
+knitr::opts_chunk$set(fig.width=12, fig.height=4) 
+
+gc()
+options("install.lock"=FALSE)
+options(scipen = 6, digits = 4) 
+library(tidyverse)
+library(haven)
+library(tiff)
+library(grid)
+library(kableExtra)
+
+path <- c("S:/CRCBase/Aron Tid till Operation/github/Uttag210706/Uttag210706/output/")
+path2 <- c("S:/CRCBase/Aron Tid till Operation/github/Uttag210706/Uttag210706/figurer/")
+
+
+
+```
+
+
+# Statistical analysis output                           
+## Patient flow chart 
+Number of patients in the analysis set: 32363.                    
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+flowchart <- read_sas(paste0(path, "flowchart.sas7bdat"))
+  flowchart %>%
+  kbl(caption = "") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+## Demography and patient characteristics
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+demography<- read_sas(paste0(path, "demography210706.sas7bdat"))
+  demography %>%
+  kbl(caption = "") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+## Primary outcome: All-cause mortality           
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig1 <- readTIFF(paste0(path2, "kolonGr_1_2107063.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig1 )
+```
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig2 <- readTIFF(paste0(path2, "rektumGr_1_21070611.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig2 )
+```
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+OS<- read_sas(paste0(path, "out_os_210706.sas7bdat"))
+  OS %>%
+    dplyr::select(info, Group, Res, type) %>%
+      mutate(type = factor(type, labels=c("Unadjusted", 
+                                          "Adjusted complete case", 
+                                          "Adjusted multiple imputations"))) %>%
+  kbl(caption = "Primary analysis") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+OS2<- read_sas(paste0(path, "out_os_frailty_210706.sas7bdat"))
+  OS2 %>%
+    dplyr::select(info, Group, Res, type) %>%
+      mutate(type = factor(type, labels=c("Adjusted multiple imputations"))) %>%
+  kbl(caption = "Sensitivity analysis: Frailty model") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+  
+```
+## Secondary outcomes               
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+Sec<- read_sas(paste0(path, "out_nonos_210706.sas7bdat"))
+  Sec %>%
+    dplyr::select(Outcome_Exposure, info, Group, Res, type) %>%
+      mutate(type = factor(type, labels=c("Unadjusted", 
+                                          "Adjusted complete case", 
+                                          "Adjusted multiple imputations"))) %>%
+  kbl(caption = "Secondary outcomes") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+## Raw descriptives primary and secondary               
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+fr1<- read_sas(paste0(path, "out_freq_gr1_210706.sas7bdat"))
+  fr1 %>%
+    dplyr::select(NAME_ , location, Group1, Res) %>%
+            mutate(location = factor(location, labels=c("Colon",  "Rectum")),
+             Group1 = factor(Group1, labels = c('0-28 days' , '29-56 days' , '57- days'))) %>%
+  kbl(caption = "Raw descriptives primary and secondary ") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+los<- read_sas(paste0(path, "out_lsm_los_210706.sas7bdat"))
+  los %>%
+    dplyr::select(info ,  Group, Res) %>%
+            mutate(Group = factor(Group, labels = c('0-28 days' , '29-56 days' , '57- days'))) %>%
+  kbl(caption = "Length of stay. Least square mean. Unadjusted ") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+```
+## Post hoc analysis 1                
+Post hoc analysis 1: Heterogeneity in the relationship time from diagnosis to start of treatment and all-cause mortality with rehard to surgical technique (Laparoscopy/Open).           
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig5 <- readTIFF(paste0(path2, "kolonGr_1_LAP_2107067.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig5 )
+```
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig6 <- readTIFF(paste0(path2, "rektumGr_1_LAP_2107067.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig6 )
+```
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+ph1<- read_sas(paste0(path, "out_os_lap_smspl_210626.sas7bdat"))
+  ph1 %>%
+    dplyr::select(info, Description, type , Pvalue_Interaction , Res) %>%
+      mutate(type = factor(type, labels=c("Unadjusted", 
+                                          "Adjusted complete case", 
+                                          "Adjusted multiple imputations"))) %>%
+  kbl(caption = "Post hoc analysis 1") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+ph11<- read_sas(paste0(path, "OUT_freq_OS_TRT_LAP_Smspl_210706.sas7bdat"))
+  ph11 %>%
+    dplyr::select( location, Group1, Res, A2_lapa) %>%
+            mutate(location = factor(location, labels=c("Colon",  "Rectum")),
+             Group1 = factor(Group1, labels = c('0-28 days' , '29-56 days' , '57- days')), 
+             A2_lapa = factor(A2_lapa, labels = c("Open" ,"Laparoscopy"))) %>%
+    
+  kbl(caption = "Post hoc analysis 1. Frequicies") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+### Dose-response relationship
+Estimate dose-response relationship between time from diagnosis to start of treatment and 5 year survival 
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig3 <- readTIFF(paste0(path2, "kolon_dose_response_2107061.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig3 )
+```
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig4 <- readTIFF(paste0(path2, "rektum_dose_response_2107061.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig4 )
+```
+
+## Post hoc analysis 2                
+Post hoc analysis 2: The relationship between surgical technique (Laparoscopy/Open) and all-cause mortality.            
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig7 <- readTIFF(paste0(path2, "kolonLAP_OPEN_2107061.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig7 )
+```
+
+```{r, echo=FALSE, results='hide' , message=FALSE, warning=FALSE, fig.width = 6 , fig.height = 4}
+fig8 <- readTIFF(paste0(path2, "rektumLAP_OPEN_2107069.tiff"), native = TRUE, info = TRUE)
+grid::grid.raster( fig8 )
+```
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, fig.show='hide'}
+ph2<- read_sas(paste0(path, "out_os_lap_open_210706.sas7bdat"))
+  ph2 %>%
+    dplyr::select(info,  type ,  Res) %>%
+      mutate(type = factor(type, labels=c("Unadjusted", 
+                                          "Adjusted complete case", 
+                                          "Adjusted IPW complete case (ATT)",
+                                          "Unadjusted IPW complete case (ATT)", 
+                                          "Adjusted multiple imputations"))) %>%
+  kbl(caption = "Post hoc analysis 2, Laparoscopy vs Open") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+  ph21<- read_sas(paste0(path, "out_os_lap_open_frailty_2100706.sas7bdat"))
+ ph21 %>%
+    dplyr::select(info,  type ,  Res) %>%
+      mutate(type = factor(type, labels=c("Adjusted multiple imputations"))) %>%
+  kbl(caption = "Post hoc analysis 2, Laparoscopy vs Open. Sensitivity analysis: Frailty model") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+   ph22<- read_sas(paste0(path, "out_os_lap_open_sens_210706.sas7bdat"))
+ ph22 %>%
+    dplyr::select(info,  type ,  Res) %>%
+      mutate(type = factor(type, labels=c("Adjusted multiple imputations"))) %>%
+  kbl(caption = "Post hoc analysis 2, Laparoscopy vs Open. Sensitivity analysis: Adjust for time from diagnosis to surgery") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+
+```
+
+
+
+
