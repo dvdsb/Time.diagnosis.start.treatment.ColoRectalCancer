@@ -66,11 +66,8 @@ Number of patients in the analysis set: 32363.
 <th style="text-align:right;">
 in
 </th>
-<th style="text-align:right;">
+<th style="text-align:left;">
 comment
-</th>
-<th style="text-align:right;">
-prev
 </th>
 <th style="text-align:right;">
 out
@@ -82,11 +79,8 @@ out
 <td style="text-align:right;">
 52868
 </td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-NA
+<td style="text-align:left;">
+Colon or rectal cancer
 </td>
 <td style="text-align:right;">
 NA
@@ -96,11 +90,8 @@ NA
 <td style="text-align:right;">
 34840
 </td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-52868
+<td style="text-align:left;">
+Elective surgery with a curative intent 2008-2016
 </td>
 <td style="text-align:right;">
 -18028
@@ -110,11 +101,10 @@ NA
 <td style="text-align:right;">
 34799
 </td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-34840
+<td style="text-align:left;">
+Diagnosed for other cancer diagnosis during the last 5 years excl skin
+tumours (ICD C43 or C44).Patients with a previous diagnose of
+C18/C19/C20 (colorectal cancer) were not excluded
 </td>
 <td style="text-align:right;">
 -41
@@ -124,11 +114,8 @@ NA
 <td style="text-align:right;">
 34777
 </td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-34799
+<td style="text-align:left;">
+Local tumour excision
 </td>
 <td style="text-align:right;">
 -22
@@ -138,11 +125,8 @@ NA
 <td style="text-align:right;">
 32538
 </td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-34777
+<td style="text-align:left;">
+Metastasized disease at diagnosis
 </td>
 <td style="text-align:right;">
 -2239
@@ -152,11 +136,9 @@ NA
 <td style="text-align:right;">
 32363
 </td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-32538
+<td style="text-align:left;">
+Several rows,  
+take first date
 </td>
 <td style="text-align:right;">
 -175
